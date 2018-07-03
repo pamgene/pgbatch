@@ -3,7 +3,7 @@ Type: Package
 Title: Batch correction methods for (PamChip) microarrays
 Version: 1.0
 Author: Rik de Wijn
-Date: 12-Jun-2018
+Date: 03-Jul-2018
 Description: Batch correction methods for (pamchip) microarrays. Currently implements the ComBat methods in a fit / apply setting.
 Encoding: UTF-8
 LazyData: true
