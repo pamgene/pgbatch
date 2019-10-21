@@ -9,6 +9,7 @@ pgCombat = R6Class("pgCombat",
     gamma.star = NULL,
     delta.star = NULL,
     Xc = NULL,
+    X0 = NULL,
 
     fit = function (dat, batch, mod = NULL, par.prior = TRUE, ref.batch = NULL) {
 
@@ -164,6 +165,7 @@ pgCombat = R6Class("pgCombat",
       if (!is.null(ref.batch)) {
         bayesdata[, batches[[ref]]] <- dat[, batches[[ref]]]
       }
+      self$X0 = s.data
       self$Xc = bayesdata
       self$batches = batch
       self$L = stand.mean[,1]
