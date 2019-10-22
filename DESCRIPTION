@@ -1,7 +1,7 @@
 Package: pgBatch
 Type: Package
 Title: Batch correction methods for (PamChip) microarrays
-Version: 1.3
+Version: 1.4
 Author: Rik de Wijn
 Date: 21-Oct-2019
 Description: Batch correction methods for (pamchip) microarrays. Currently implements the ComBat methods in a fit / apply setting.

@@ -165,7 +165,7 @@ pgCombat = R6Class("pgCombat",
       if (!is.null(ref.batch)) {
         bayesdata[, batches[[ref]]] <- dat[, batches[[ref]]]
       }
-      self$X0 = s.data
+      self$X0 = dat
       self$Xc = bayesdata
       self$batches = batch
       self$L = stand.mean[,1]
