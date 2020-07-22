@@ -11,7 +11,7 @@ pgCombat = R6Class("pgCombat",
     Xc = NULL,
     X0 = NULL,
 
-    fit = function (dat, batch, mod = NULL, par.prior = TRUE, ref.batch = NULL) {
+    fit = function (dat, batch, mod = NULL, par.prior = TRUE, ref.batch = NULL, mean.only = FALSE) {
 
       if (length(dim(batch)) > 1) {
         stop("This version of ComBat only allows one batch variable")
@@ -29,7 +29,7 @@ pgCombat = R6Class("pgCombat",
       else {
         ref <- NULL
       }
-      #message("Found", nlevels(batch), "batches")
+      message("Found", nlevels(batch), "batches")
       n.batch <- nlevels(batch)
       batches <- list()
       for (i in 1:n.batch) {
@@ -116,16 +116,19 @@ pgCombat = R6Class("pgCombat",
 
       gamma.star <- delta.star <- matrix(NA, nrow = n.batch, ncol = nrow(s.data))
       if (par.prior) {
-        #message("Finding parametric adjustments")
         results <- lapply(1:n.batch, function(i) {
-
-
-          temp <- private$it.sol(s.data[, batches[[i]]], gamma.hat[i,
-                                                           ], delta.hat[i, ], gamma.bar[i], t2[i], a.prior[i],
-                         b.prior[i])
-          gamma.star <- temp[1, ]
-          delta.star <- temp[2, ]
-
+          if (mean.only) {
+            gamma.star <- private$postmean(gamma.hat[i, ], gamma.bar[i],
+                                   1, 1, t2[i])
+            delta.star <- rep(1, nrow(s.data))
+          }
+          else {
+            temp <- private$it.sol(s.data[, batches[[i]]], gamma.hat[i,
+                                                             ], delta.hat[i, ], gamma.bar[i], t2[i], a.prior[i],
+                           b.prior[i])
+            gamma.star <- temp[1, ]
+            delta.star <- temp[2, ]
+          }
           list(gamma.star = gamma.star, delta.star = delta.star)
         })
         for (i in 1:n.batch) {

@@ -13,10 +13,10 @@ bx = factor(bx)
 
 
 cMod = pgCombat$new()
-cMod = cMod$fit(X, bx, ref.batch = "1")
+cMod = cMod$fit(X, bx, mean.only = TRUE)
 Xc = cMod$apply(X, bx)
 Xc1 = cMod$Xc
-Xcc = sva::ComBat(X, bx, ref.batch = "1")
+Xcc = sva::ComBat(X, bx, mean.only  = TRUE)
 
 print(all(round(Xc,8) - round(Xcc,8) == 0))
 
