@@ -30,14 +30,14 @@ pgCombat = R6Class("pgCombat",
         ref <- NULL
       }
       message("Found", nlevels(batch), "batches")
-      n.batch <- nlevels(batch)
-      batches <- list()
+      n.batch <- nlevels(batch) # number of batches
+      batches <- list() # a list with length 1..n.batch with each element the column indexes of the members of corresponding batch in dat
       for (i in 1:n.batch) {
         batches[[i]] <- which(batch == levels(batch)[i])
       }
-      n.batches <- sapply(batches, length)
-      if (any(n.batches == 1)) {
-        stop("At lesat one batch has only 1 observation")
+      n.batches <- sapply(batches, length) # number of dat columns (samples) for each batch
+      if (!mean.only & any(n.batches == 1)) {
+        stop("At least one batch has only 1 observation, consider using L-model")
       }
       n.array <- sum(n.batches)
       design <- cbind(batchmod, mod)
@@ -68,8 +68,7 @@ pgCombat = R6Class("pgCombat",
       }
       #cat("Standardizing Data across genes\n")
 
-      B.hat <- solve(crossprod(design), tcrossprod(t(design),
-                                                   as.matrix(dat)))
+      B.hat <- solve(crossprod(design), tcrossprod(t(design),as.matrix(dat)) )
 
 
       if (!is.null(ref.batch)) {
@@ -107,7 +106,7 @@ pgCombat = R6Class("pgCombat",
 
       delta.hat <- NULL
       for (i in batches) {
-        delta.hat <- rbind(delta.hat, private$rowVars(s.data[, i], na.rm = TRUE))
+        delta.hat <- rbind(delta.hat, private$rowVars(s.data[, i, drop = FALSE], na.rm = TRUE))
       }
       gamma.bar <- rowMeans(gamma.hat)
       t2 <- private$rowVars(gamma.hat)
