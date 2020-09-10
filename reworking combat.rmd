@@ -12,11 +12,13 @@ library(data.table)
 ```
 
 ## Introduction
-This is a technical description of the Combat method for batch correction of micro array data by Johnson et al. (Biostatistics (2007) 8 p118-127). 
+- This is a technical description of the Combat method for batch correction of micro array data by Johnson et al. (Biostatistics (2007) 8 p118-127). The goal is to calculate a batch correction for *N* x *G* data matrix **X** with *N* observations and *G* spots, where the observations are subdivided in multiple batches between which a batch effect occurs (or may occur). **bx** is the batch indicator vector of length *N*.
 
+- Below the original ComBat method estimating an L/S model without designated reference batch is described
 
-Calculate a batch correction for *N* x *G* data matrix **X** with *N* observations and *G* spots.
-**bx** is the batch indicator vector of length *N*
+- Two optional modifications of the ComBat model have been introduced by Zhang et al. (BMC bioinformatics (2018) 19:226) that are of practical importance:
+-- Estimating a Location-model (mean.only) rather than a Location and Scale (L/S) model.
+-- Use of a designated reference batch that will not be changed by the correction; the other batches will be corrected *towards* the reference batch.
 
 ```{r}
 bx = factor(c(1,1,1,1,2,2,2,2,2,3,3,3)) #12 observations divided over 3 batches
@@ -48,7 +50,7 @@ $Y^*_{ijg} = \frac{Y_{ijg} - \alpha_g - \lambda_{ig}}{\sigma_{ig}} + \alpha_g$
 
 ## Empirical Bayes Method for finding the batch adjustment
 
-### standardize the data
+### Step 1. standardize the data
 
 $Z_{ijg} = \frac{Y_{ijg} - \hat{\alpha_g}}{\hat{\sigma_g}}$
 
@@ -80,11 +82,9 @@ View(Z)
 ```
 
 
-### Empirical Bayes batch effect parameters using parametric emprirical priors
+### Step 2. Empirical Bayes estimate of batch effect parameters using parametric emprirical priors
 Scaled data Z is used as input for estimating the EB batch correction. The EB corrected data is given by:
 $Y_{ijg}^* = \hat{\sigma_g}\frac{(Z_{ijg} - \hat{\lambda_{ij}^*})}{\hat{\sigma_{ig}^*}} + \hat{\alpha_g}$
-
-with
 
 $\hat{\lambda_{ig}^*}$ is the adjusted estimator for the batch location effect and $\hat{\sigma_{ig}^*}$ the adjusted estimator for the batch scale effect (Adjusted compared the per spot estimators $\hat{\lambda_{ig}}$ and $\hat{\sigma_{ig}}$ used above). The adjusted estimators are given by:
 
@@ -127,7 +127,6 @@ it.sol = function(params, Z, lambda.hat, sigma.hat, conv = .0001)
    while(change>conv){
       g.new <- postmean(lambda.hat, params$lambda.bar, params$n, d.old, params$t2)
       sum2 = colSums(scale(Z, center = g.new, scale = FALSE)^2)
-      #sum2 <- rowSums((sdat - g.new %*% t(rep(1,ncol(sdat))))^2, na.rm=TRUE)
       d.new <- postvar(sum2, params$n, params$gamma, params$theta)
       change <- max(abs(g.new-g.old) / g.old, abs(d.new-d.old) / d.old)
       g.old <- g.new
@@ -156,7 +155,7 @@ params = data.frame( bx = levels(bx),
 # solving for batch effect
 post = params %>% group_by(bx) %>% do(it.sol(., Z = Z[bx == .$bx,], lambda.hat[.$bi,], sigma.hat[.$bi,]))
 ```
-Finaly, the batch corrected data is obtained. 
+### Step 3. Return batch corrected data
 ```{r correct}
 
 batchcorrect = function(Z, bx,  post, lambda_g, sigmasq_g){
@@ -173,12 +172,7 @@ batchcorrect = function(Z, bx,  post, lambda_g, sigmasq_g){
 
 ```
 
-In the pgBatch package (https://rikdewijn@bitbucket.org/bnoperator/pgbatch.git) the procedure is implemented using a class with a "Fit" and "Apply" method. Fit method returns an object with teh correction parameters, Apply method can be used to apply teh correction to a data set. In this way a ComBat model fitted on data set $Y_1$ (i.e. REF samples), can be applied to set $Y_2$ (DAS samples). 
+In the pgBatch package (https://rikdewijn@bitbucket.org/bnoperator/pgbatch.git) the procedure is implemented using a class with a "Fit" and "Apply" method. Fit method returns an object with teh correction parameters, Apply method can be used to apply the correction to a data set. In this way a ComBat model fitted on data set $Y_1$ (i.e. REF samples), can be applied to set $Y_2$ (DAS samples). A clean version of the code is provided in "combat_reworked.r".
 
-
-
-
-
-
-
-
+## Reference batch
+- Data scaling is performed based on the data in the reference set

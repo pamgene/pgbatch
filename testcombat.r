@@ -15,18 +15,12 @@ bx = factor(bx)
 
 
 cMod = pgCombat$new()
-cMod = cMod$fit(X, bx, mean.only = FALSE)
+cMod = cMod$fit(X, bx, mean.only = TRUE,ref.batch = "1")
 Xc = cMod$apply(X, bx)
 Xc1 = cMod$Xc
-Xcc = sva::ComBat(X, bx, mean.only  = FALSE)
+Xcc = sva::ComBat(X, bx, mean.only  = TRUE, ref.batch = "1")
 
 print(all(round(Xc,8) - round(Xcc,8) == 0))
 
-dfs = df %>% group_by(RunID, ID) %>% dplyr::summarize(mval =mean(value))
-Xm = acast(dfs, ID ~ RunID, value.var = "mval")
-bxm = acast(dfs, ID~ RunID, value.var = "RunID")[1,]
-mMod = pgCombat$new()
-mMod = cMod$fit(Xm, bxm, mean.only = TRUE)
-Xcm = cMod$apply(Xm, bxm)
-Xccm =  sva::ComBat(Xm, bxm, mean.only  = TRUE)
-"C:/Users/rdwijn/Documents/210-000/210-226 PamStationDX/Control/Ref samples/Verification/RefveR"
+
+
