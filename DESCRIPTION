@@ -7,5 +7,5 @@ Date: 21-Oct-2019
 Description: Batch correction methods for (pamchip) microarrays. Currently implements the ComBat methods in a fit / apply setting.
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.1
 Imports: R6
